@@ -240,8 +240,15 @@ arg_t analyseArguments (int argc, char ** argv) {
 	a.code = -1;
 
 	// Check argc
-	if( argc  !=  4 )
+	if( argc  <  4 )
 		return a;
+
+	/*
+	int opt = 0;
+	while ((opt = getopt(argc, argv, "sto:")) != -1) {
+		switch( opt )
+	*/
+
 
 	if( isdigit( *argv[1] ) )
 		a.nbThreads = atoi( argv[1] );
