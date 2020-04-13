@@ -3,11 +3,11 @@ CFLAGS = -Wall -g -pthread
 OFLAGS = -Ofast
 
 
-reduc: clean
-	$(CC) $(CFLAGS) $(OFLAGS) exo1.c -o reduction
+# reduc: clean
+# 	$(CC) $(CFLAGS) $(OFLAGS) exo1.c -o reduction
 
 
-fence: clean compile
+barrier: clean compile
 	./main
 
 compile: main.o exo2.o
