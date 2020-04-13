@@ -167,7 +167,7 @@ int barrier1(const int number_thread) {
 
   // Init all threads
   for( int thread = 0 ; thread < number_thread ; thread++ ) {
-    if( pthread_create( &tbl_thread[thread].tid, NULL, sum2, (void *)tbl_thread ) ) {
+    if( pthread_create( &tbl_thread[thread].tid, NULL, sum2, (void *)&tbl_thread[thread] ) ) {
       perror("barrier1: pthread_create failed");
       return errno;
     }
@@ -189,3 +189,5 @@ int barrier1(const int number_thread) {
 
   return 0;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
