@@ -97,9 +97,95 @@ int mutex1(const int number_thread) {
   return 0;
 }
 
-int barrier1(const int number_thread) {
+/////////////////////////////////////////////////////////////////////////////////////
+
+void *sum2(void *arg) {
+
+  // Cast arg in struct
+  thread_arg_t2 *arg_t = (void *) arg;
 
   //
+  printf("thread n°%ld: start\n", arg_t->tid);
+
+  //
+  printf("thread n°%ld: wait\n", arg_t->tid);
+
+  // Init the wait barrier
+
+  switch( pthread_barrier_wait( arg_t->barrier )  ) {
+    case PTHREAD_BARRIER_SERIAL_THREAD :
+      printf("sum2: thread synchronized at the barrier\n");
+      break;
+
+    case 0:
+      printf("sum2: other threads\n");
+      break;
+
+    case EINVAL:
+      printf("sum2: pthread_barrier_wait failed\n");
+      return NULL;
+  }
+
+  //
+  printf("thread n°%ld: add\n", arg_t->tid);
+
+  // add 1
+  (*arg_t->tret) += 1;
+
+  //
+  printf("thread n°%ld: end\n", arg_t->tid);
+
+  // Exit
+  pthread_exit( NULL );
+  return NULL;
+}
+
+int barrier1(const int number_thread) {
+
+  // Init table struct
+  thread_arg_t2 *tbl_thread = malloc( number_thread * sizeof(thread_arg_t2) );
+  if( !tbl_thread ) {
+    printf("barrier1: wrong malloc of 'tbl_thread\n");
+    return -1;
+  }
+
+  // Init the barrier
+  pthread_barrier_t barrier;
+  if( pthread_barrier_init( &barrier, NULL, number_thread ) ) {
+    perror("barrier1: pthread_barrier_init failed");
+    return errno;
+  }
+
+  // Init the global var
+  int global_sum = 0;
+
+  // Fill tbl_thread
+  for( int thread = 0; thread < number_thread ; thread++ ) {
+    tbl_thread[ thread ].tret    = &global_sum;
+    tbl_thread[ thread ].barrier = &barrier;
+  }
+
+  // Init all threads
+  for( int thread = 0 ; thread < number_thread ; thread++ ) {
+    if( pthread_create( &tbl_thread[thread].tid, NULL, sum2, (void *)tbl_thread ) ) {
+      perror("barrier1: pthread_create failed");
+      return errno;
+    }
+  }
+
+  // Join all threads
+  for( int thread = 0 ; thread < number_thread ; thread++ ) {
+    if( pthread_join( tbl_thread[thread].tid, NULL ) ) {
+      perror("barrier1: pthread_join failed");
+      return errno;
+    }
+  }
+
+  // Destroy the barrier
+  if( pthread_barrier_destroy( &barrier ) ) {
+    perror("barrier1: pthread_barrier_destroy failed");
+    return errno;
+  }
 
   return 0;
 }

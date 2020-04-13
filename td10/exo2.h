@@ -45,13 +45,13 @@ int mutex1(const int number_thread);
 ////////////////////////////////////////////////////////////////////////////////////
 
 //
-typedef struct thread_arg_s {
+typedef struct thread_arg_s2 {
 
   //Thread ID
   pthread_t tid;
 
   // Struct for barrier
-  pthread_barrier_t barrier;
+  pthread_barrier_t *barrier;
 
   //Thread return value
   int *tret;
@@ -59,4 +59,6 @@ typedef struct thread_arg_s {
 } thread_arg_t2;
 
 void *sum2(void *arg);
-int barrier(const int number_thread);
+int barrier1(const int number_thread);
+
+////////////////////////////////////////////////////////////////////////////////////
