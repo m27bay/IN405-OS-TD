@@ -6,7 +6,7 @@ void *sum(void *arg) {
   thread_arg_t *targ = (thread_arg_t *)arg;
 
   //
-  printf("thread n°%ld add done\n", targ->tid);
+  printf("thread n°%ld: start\n", targ->tid);
 
   // Try lock mutex
   int lock;
@@ -15,6 +15,8 @@ void *sum(void *arg) {
     // Add 1
     *(targ->tret) += 1;
   }
+
+  // Can't lock
   else
     perror("sum: pthread_mutex_lock failed\n");
 
@@ -27,28 +29,32 @@ void *sum(void *arg) {
       return NULL;
     }
 
+    // Can't unlock
     else
       perror("sum: pthread_mutex_unlock failed\n");
   }
+
+  //
+  printf("thread n°%ld: end\n", targ->tid);
 
   //
   pthread_exit( NULL );
   return NULL;
 }
 
-int fence1(int number_thread) {
+int mutex1(const int number_thread) {
 
   // Init struct table
   thread_arg_t *tab_targ = malloc( number_thread * sizeof(thread_arg_t) );
   if( !tab_targ ) {
-    printf("fence1: wrong alloc 'tab_targ'\n");
+    printf("mutex1: wrong alloc 'tab_targ'\n");
     return -1;
   }
 
   // Init mutex
   pthread_mutex_t mut;
   if( pthread_mutex_init( &mut, NULL ) ) {
-    printf("fence1: pthread_mutex_init failed\n");
+    printf("mutex1: pthread_mutex_init failed\n");
     return -1;
   }
 
@@ -64,7 +70,7 @@ int fence1(int number_thread) {
   // Create all threads
   for( int i = 0 ; i < number_thread ; i++ ) {
     if( pthread_create( &tab_targ[i].tid, NULL, sum, (void *)&tab_targ[i] ) ) {
-      perror("fence1: pthread_create failed\n");
+      perror("mutex1: pthread_create failed\n");
       return errno;
     }
   }
@@ -72,14 +78,14 @@ int fence1(int number_thread) {
   // Join all threads
   for( int i = 0 ; i < number_thread ; i++ ) {
     if( pthread_join( tab_targ[i].tid, NULL ) ) {
-      perror("fence1: pthread_join failed\n");
+      perror("mutex1: pthread_join failed\n");
       return errno;
     }
   }
 
-  //  Destoy mutex
+  // Destoy mutex
   if( pthread_mutex_destroy( &mut ) ) {
-    printf("fence1; pthread_mutex_destroy failed\n");
+    printf("mutex1; pthread_mutex_destroy failed\n");
     return -1;
   }
 
@@ -87,6 +93,13 @@ int fence1(int number_thread) {
   for( int i = 0 ; i < number_thread ; i++ )
     printf("tab_targ[%d].tret = %d\n", i, *(tab_targ[i].tret) );
   printf("global_sum = %d\n", global_sum );
+
+  return 0;
+}
+
+int barrier1(const int number_thread) {
+
+  //
 
   return 0;
 }

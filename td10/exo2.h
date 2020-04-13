@@ -29,7 +29,7 @@ typedef struct thread_arg_s {
   //Thread ID
   pthread_t tid;
 
-  //
+  // Struct for mutex
   pthread_mutex_t *mut;
 
   //Thread return value
@@ -37,5 +37,26 @@ typedef struct thread_arg_s {
 
 } thread_arg_t;
 
+////////////////////////////////////////////////////////////////////////////////////
+
 void *sum(void *arg);
-int fence1(int number_thread);
+int mutex1(const int number_thread);
+
+////////////////////////////////////////////////////////////////////////////////////
+
+//
+typedef struct thread_arg_s {
+
+  //Thread ID
+  pthread_t tid;
+
+  // Struct for barrier
+  pthread_barrier_t barrier;
+
+  //Thread return value
+  int *tret;
+
+} thread_arg_t2;
+
+void *sum2(void *arg);
+int barrier(const int number_thread);

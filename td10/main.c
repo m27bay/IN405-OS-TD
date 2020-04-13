@@ -2,6 +2,12 @@
 
 int main(int argc, char const *argv[])
 {
-  fence1(3);
+  // Test mutex with three threads
+  mutex1(3);
+
+  // Test mutex with ten threads
+  mutex1(10);
+
+  // progam's end
   return 0;
 }
