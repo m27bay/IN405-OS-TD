@@ -94,6 +94,10 @@ int mutex1(const int number_thread) {
     printf("tab_targ[%d].tret = %d\n", i, *(tab_targ[i].tret) );
   printf("global_sum = %d\n", global_sum );
 
+  // Release
+  free(tab_targ);
+
+  // Exit
   return 0;
 }
 
@@ -187,6 +191,10 @@ int barrier1(const int number_thread) {
     return errno;
   }
 
+  // Release
+  free(tbl_thread);
+
+  // Exit
   return 0;
 }
 

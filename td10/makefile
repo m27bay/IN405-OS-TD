@@ -19,8 +19,14 @@ main.o: main.c
 exo2.o: exo2.c exo2.h
 	$(CC) $(CFLAGS) $(OFLAGS) -c exo2.c exo2.h
 
-mem_check: compile
+mem_check: clean compile
 	valgrind ./main
+
+mem_check2: clean compile
+	valgrind --leak-check=full ./main
+
+mem_check3: clean compile
+	valgrind --leak-check=full --show-leak-kinds=all ./main
 
 clean:
 	rm -f *.o
