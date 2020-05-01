@@ -175,6 +175,7 @@ int verifSomme (int * tableau, int tailleTableau, int resultat) {
 	for (i = 0; i < tailleTableau; ++i)
 		tmp += tableau [i];
 
+	printf("obj : %d, my res : %d \n", tmp, resultat);
 	return resultat == tmp;
 }
 
@@ -193,6 +194,7 @@ int verifMoyenne (int * tableau, int tailleTableau, int resultat) {
 	for (i = 0; i < tailleTableau; ++i)
 		tmp += tableau [i];
 
+	printf("obj : %d, my res : %d \n", (tmp / tailleTableau), resultat);
 	return resultat == (tmp / tailleTableau);
 }
 
@@ -208,6 +210,7 @@ int verifMax (int * tableau, int tailleTableau, int resultat) {
 	for (i = 0; i < tailleTableau; ++i)
 		tmp = (tmp < tableau [i] ? tableau [i] : tmp);
 
+	printf("obj : %d, my res : %d \n", tmp, resultat);
 	return resultat == tmp;
 }
 
@@ -223,6 +226,7 @@ int verifMin (int * tableau, int tailleTableau, int resultat) {
 	for (i = 0; i < tailleTableau; ++i)
 		tmp = (tmp > tableau [i] ? tableau [i] : tmp);
 
+	printf("obj : %d, my res : %d \n", tmp, resultat);
 	return resultat == tmp;
 }
 
@@ -265,7 +269,7 @@ arg_t analyseArguments (int argc, char ** argv) {
 	else if( *argv[3]  ==  'M' ) a.code = OCD_MAX;
 	else if( *argv[3]  ==  'm' ) a.code = OCD_MIN;
 	else {
-		printf("analyseArguments: wrong operator");
+		printf("analyseArguments: wrong operator\n");
 		exit(1);
 	}
 
@@ -329,7 +333,7 @@ int * genereTableau (int tailleTableau) {
 // etc.) puis créer les threads. Une fois l'exécution des threads terminée et
 // la réduction opérée, la vérification du résultat est faite.
 // \param	arg 			Arguments du programme décodés
-void programmePrincipal (const arg_t arg) {
+int programmePrincipal (const arg_t arg) {
 	// Déclaration des variables
 	int * tab, res;
 
@@ -346,14 +350,14 @@ void programmePrincipal (const arg_t arg) {
 	tab_msg = malloc( arg.nbThreads * sizeof(message_t) );
 	if( !tab_msg ) {
 		printf("programmePrincipal: wrong alloc 'tab_msg'\n");
-		return;
+		return -1;
 	}
 
 	// Threads
 	tab_tid = malloc( arg.nbThreads * sizeof(pthread_t) );
 	if( !tab_tid ) {
 		printf("programmePrincipal: wrong alloc 'tab_tid'\n");
-		return;
+		return -1;
 	}
 
 	// Initialisation des variables et création des threads
@@ -394,7 +398,7 @@ void programmePrincipal (const arg_t arg) {
 	for( int i = 0 ; i < arg.nbThreads ; i++) {
 		if( pthread_create( &tab_tid[i], NULL, (void *)op_func, &tab_msg[i] ) ) {
 			perror("programmePrincipal: pthread_create failed\n");
-			return;
+			return -1;
 		}
 	}
 
@@ -402,7 +406,7 @@ void programmePrincipal (const arg_t arg) {
 	for( int i = 0 ; i < arg.nbThreads ; i++) {
 		if( pthread_join( tab_tid[i], NULL ) ) {
 			perror("programmePrincipal: pthread_join failed\n");
-			return;
+			return -1;
 		}
 	}
 
@@ -424,16 +428,27 @@ void programmePrincipal (const arg_t arg) {
 			res = -1;
 	}
 
+	int succes = 0;
 	// NE PAS TOUCHER
 	if ( (* (decodeOpcodeVerif (arg.code) ) ) (tab, arg.tailleTableau, res) )
+	{
 		printf ("Le resultat est juste.\n");
-	else printf ("Le resultat est faux.\n");
+		succes = 1;
+	}
+	else
+	{
+		printf ("Le resultat est faux.\n");
+		succes = 0;
+	}
 	// FIN
 
 	// Libération de la mémoire
 	free(tab);
 	free(tab_tid);
 	free(tab_msg);
+
+	//
+	return succes;
 }
 
 // NE PAS TOUCHER
@@ -449,7 +464,7 @@ int main (int argc, char ** argv) {
 	srand (time (NULL) );
 
 	a = analyseArguments (argc, argv);
-	programmePrincipal (a);
+	int succes = programmePrincipal (a);
 
-	return 0;
+	return succes;
 }
